@@ -1,18 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import HistoryList from './components/HistoryList';
 import TemperatureControls from './components/TemperatureControls';
 import TemperatureDisplay from './components/TemperatureDisplay';
 
-export default function App() {
 
+export default function App() {
   const [temperature, setTemperature] = useState(20);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState(() => {
+    // Cargar el historial desde localStorage si existe
+    const saved = localStorage.getItem('temperatureHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  useEffect(() => {
+    // Guardar el historial en localStorage cada vez que cambia
+    localStorage.setItem('temperatureHistory', JSON.stringify(history));
+  }, [history]);
 
   const updateTemperature = (newTemp) => {
+    if (newTemp < 0) newTemp = 0;
+    if (newTemp > 40) newTemp = 40;
+
     setTemperature(newTemp);
     const timestamp = new Date().toLocaleTimeString();
-    setHistory((prev) => [...prev, `[${timestamp}] → ${newTemp} °C`]);
+    setLoadingHistory(true);
+    setTimeout(() => {
+      setHistory((prev) => [...prev, `[${timestamp}] → ${newTemp} °C`]);
+      setLoadingHistory(false);
+    }, 500);
   };
 
   const resetTemperature = () => {
@@ -29,7 +46,11 @@ export default function App() {
         onDecrease={() => updateTemperature(temperature - 1)}
         onReset={resetTemperature}
       />
-      <HistoryList history={history} />
+      {loadingHistory ? (
+        <p>Cargando historial...</p>
+      ) : (
+        <HistoryList history={history} />
+      )}
     </div>
   );
 }
