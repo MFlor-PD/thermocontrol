@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://MFlor-PD.github.io/thermocontrol",
+  "homepage": "https://MFlor-PD.github.io/tempctrl",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
